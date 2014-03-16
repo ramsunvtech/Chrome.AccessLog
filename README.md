@@ -5,7 +5,7 @@ This Chrome Plugin is used to log the Basic Accessbility Points by Reading the L
 #### How it Works? ####
 After installing this plugin, you can find the icon in right top of the browser. once you clicked the icon, you can open the console tab by pressing F12 to see the Accessbility Log's
 
-#### Accessbility is Huge and what are the things can be checked by this pluging? ####
+#### Accessbility is Huge and what are the things can be checked by this plugin? ####
 Yes we agree its huge. i have started this plugin with basic check points below.
 
 - Missed `alt` attribute in `img` Tag.
