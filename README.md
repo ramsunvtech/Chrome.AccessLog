@@ -13,4 +13,4 @@ Yes we agree its huge. i have started this plugin with basic check points below.
 - Missed `for` attribute in `label` Tag.
 - Missed `title` attribute in `a` Tag.
 - The `label's` attribute `for` attribute is pointed to valid form field.
-- Check Only one H1 Tag is exist.
+- Check Only one `h1` Tag is exist.
