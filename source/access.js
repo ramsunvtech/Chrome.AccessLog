@@ -14,8 +14,14 @@ access.VERSION = '0.1.0';
 // Warning Message Style.
 access.warnMsgStyle = 'color:red;font-size:120%;font-weight:bold;line-height:15px;';
 
+// Info Message Style.
+access.infoMsgStyle = 'color:black;font-size:120%;font-weight:bold;line-height:15px;';
+
 // Error Count Property.
 access.errorCount = 0;
+
+// Error Count Property.
+access.warningCount = 0;
 
 // Attribute Property.
 access.attribute = 'alt';
@@ -26,8 +32,14 @@ access.H1Style = "font-family:trebuchet ms;color:red;font-size:160%;text-decorat
 // Main H2 Style.
 access.H2Style = "font-family:trebuchet ms;color:red;font-size:135%;font-weight:bold;line-height:50px;";
 
+// Main H2 Warning Style.
+access.H2WarnStyle = "font-family:trebuchet ms;color:#333;font-size:135%;font-weight:bold;line-height:50px;";
+
 // Main H3 Style.
 access.H3Style = "font-family:trebuchet ms;color:red;font-size:100%;font-weight:bold;line-height:10px;";
+
+// Main H3 Warning Style.
+access.H3WarnStyle = "font-family:trebuchet ms;color:black;font-size:100%;font-weight:bold;line-height:10px;";
 
 // Message Object Property.
 access.message = {
@@ -40,6 +52,9 @@ access.message = {
   "notUnique": function (tag, length) {
     return tag + " used " + length + " times";
   },
+  "notExist": function (tag) {
+    return tag + " is not exist";
+  },
   "inValidField": function (tag, fieldId) {
     return tag + " pointed to non-exist Element (#" + fieldId + ")";
   },
@@ -48,42 +63,65 @@ access.message = {
   }
 }
 
-// Missing Accessbility.
-access.missing = function () {
+// Get the List of Accessbility Errors.
+access.getErrors = function () {
+  access.elUsage('h1', 1, 1);
   access.getElByMissedAttribute('img', 'alt');
   access.getElByMissedAttribute('table', 'scope');
-  access.getElByMissedAttribute('a', 'title');
   access.getElByMissedAttribute('label', 'for');
+  access.getElByMissedAttribute('iframe', 'title');
+  access.getElByMissedAttribute('a', 'href');
   access.inValidEl('label', 'for');
-  access.hasMany('h1');
 }
 
-// Format the Warn.
+// Get the List of Accessbility Warnings.
+access.getWarnings = function () {
+  access.getElByMissedAttribute('a', 'title', true);
+}
+
+// Format the Console Warning.
 access.warn = function (msg) {
   console.warn('%c' + msg, access.warnMsgStyle);
 }
 
-access.aLog = function (warningMsg, code) {
-  access.warn(warningMsg);
+// Format the Console Information.
+access.info = function (msg) {
+  console.info('%c' + msg, access.infoMsgStyle);
+}
+
+access.aLog = function (warningMsg, code, isInfo) {
+  if(isInfo) {
+    access.warningCount++;
+    access.info(warningMsg);
+  }
+  else {
+    access.errorCount++;
+    access.warn(warningMsg);
+  }
+
   console.log(code);
   console.log(' ');
 }
 
 // Check If Element used Many times in Page.
-access.hasMany = function (tag) {
+access.elUsage = function (tag, min, max, isInfo) {
   var elStack = document.getElementsByTagName(tag),
       isElDefined = (elStack !== undefined) ? true : false,
-      hasMany = (isElDefined) ? (elStack.length > 1) ? true : false : false;
+      isNotExist = (elStack.length < min) ? true : false;
+      hasMany = (isElDefined) ? (elStack.length > max) ? true : false : false,
+      hasError = (isNotExist || hasMany) ? true : false;
 
-  if(hasMany) {
-    console.groupCollapsed('%c' + tag + ': Element Usage', access.H3Style);
-    access.aLog(access.message.notUnique(tag, elStack.length), elStack);
+  if(hasError) {
+    var groupStyle = (isInfo) ? access.H3WarnStyle : access.H3Style;
+    console.groupCollapsed('%c' + tag + ': Element Usage', groupStyle);
+    msg = (hasMany) ? access.message.notUnique(tag, elStack.length) : (isNotExist) ? access.message.notExist(tag) : '';
+    access.aLog(msg, elStack);
     console.groupEnd();
   }
 }
 
 // Check If Given Tag has given attribute is exist.
-access.getElByMissedAttribute = function (tag, attribute) {
+access.getElByMissedAttribute = function (tag, attribute, isInfo) {
   var elStack = document.getElementsByTagName(tag),
       groupFlag = false;
 
@@ -99,18 +137,17 @@ access.getElByMissedAttribute = function (tag, attribute) {
 
       if(groupFlag == false && (isAttributeBlank || isAttributeMissed)) {
         groupFlag = true;
-        console.groupCollapsed('%c' + tag + ': Missing Attributes (' + attribute + ')', access.H3Style);
+        groupStyle = (isInfo) ? access.H3WarnStyle : access.H3Style;
+        console.groupCollapsed('%c' + tag + ': Missing Attributes (' + attribute + ')', groupStyle);
       }
 
       // Check If Given Attribute is Exist and Blank.
       if(isAttributeBlank) {
-        access.errorCount++;
-        access.aLog(access.message.blank(attribute, tag), elStack[index]);
+        access.aLog(access.message.blank(attribute, tag), elStack[index], isInfo);
       }
       // Check If Given Attribute is Missed.
       else if(isAttributeMissed) {
-        access.errorCount++;
-        access.aLog(access.message.missing(attribute, tag), elStack[index]);
+        access.aLog(access.message.missing(attribute, tag), elStack[index], isInfo);
       }
     }
   }
@@ -119,7 +156,7 @@ access.getElByMissedAttribute = function (tag, attribute) {
 }
 
 // Check If Given Field Id is Exist and not valid
-access.inValidEl = function (tag, attribute) {
+access.inValidEl = function (tag, attribute, isInfo) {
   var elStack = document.getElementsByTagName(tag),
       groupFlag = false;
 
@@ -142,7 +179,8 @@ access.inValidEl = function (tag, attribute) {
 
         if(groupFlag == false && (inValidEl || inValidFormField)) {
           groupFlag = true;
-          console.groupCollapsed('%c' + tag + ': Attribute (' + attribute + ') Pointing to Non-exist Element / Invalid Field Id', access.H3Style);
+          groupStyle = (isInfo) ? access.H3WarnStyle : access.H3Style;
+          console.groupCollapsed('%c' + tag + ': Attribute (' + attribute + ') Pointing to Non-exist Element / Invalid Field Id', groupStyle);
         }
 
         if(inValidEl) {
@@ -164,7 +202,11 @@ access.initialize = function () {
   console.time("Time Taken");
   console.clear();
   console.log("%cAccessbility Log", access.H1Style);
-  access.missing();
+  console.log("%cErrors: ", access.H2Style);
+  access.getErrors();
   console.log("%cTotal Errors: " + access.errorCount, access.H2Style);
+  console.log("%cWarnings: ", access.H2WarnStyle);
+  access.getWarnings();
+  console.log("%cTotal Warnings: " + access.warningCount, access.H2WarnStyle);
   console.timeEnd("Time Taken");
 }();
