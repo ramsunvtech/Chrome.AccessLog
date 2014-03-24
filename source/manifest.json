@@ -25,5 +25,7 @@
     "tabs",
     "http://*/",
     "https://*/"
-  ]
+  ],
+
+  "web_accessible_resources": ["destroyUser.js"]
 }
