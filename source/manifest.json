@@ -14,7 +14,7 @@
 
   "browser_action": {
     "default_icon": "alog.png",
-    "default_title": "Access Log"
+    "default_title": "Accessbility Log"
   },
 
   "background": {
