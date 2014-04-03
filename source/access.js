@@ -55,6 +55,9 @@ access.message = {
   "notExist": function (tag) {
     return tag + " is not exist";
   },
+  "inValidAttrValue": function (tag, attr) {
+    return tag + ': ' + attr + ' Attribute is Invalid';
+  },
   "inValidField": function (tag, fieldId) {
     return tag + " pointed to non-exist Element (#" + fieldId + ")";
   },
@@ -67,10 +70,10 @@ access.message = {
 access.getErrors = function () {
   access.elUsage('h1', 1, 1);
   access.getElByMissedAttribute('img', 'alt');
-  access.getElByMissedAttribute('table', 'scope');
   access.getElByMissedAttribute('label', 'for');
   access.getElByMissedAttribute('iframe', 'title');
   access.getElByMissedAttribute('a', 'href');
+  access.checkScopeAttribute();
   access.inValidEl('label', 'for');
 }
 
@@ -118,6 +121,57 @@ access.elUsage = function (tag, min, max, isInfo) {
     access.aLog(msg, elStack);
     console.groupEnd();
   }
+}
+
+// Check If Scope Attribute is used in `TH` and `TD`.
+access.checkScopeAttribute = function (tag) {
+  var tablesList = document.getElementsByTagName(tag),
+      groupFlag = false;
+
+  // Iterate the each table List.
+  for(tableIndex in tablesList) {
+    var tBody = tablesList[tableIndex].children;
+
+    // Iterate the each table Body.
+    for(bIndex in tBody) {
+      var td = tBody[bIndex].children;
+
+      // Iterate the each table row List.
+      for(rIndex in td) {
+        if(typeof td[rIndex].children === 'object') {
+          var THorTD = td[rIndex].children;
+
+          // Iterate the each table row's Columns List.
+          for(cIndex in THorTD) {
+            if(typeof THorTD[cIndex] === 'object') {
+              var isTH = (THorTD[cIndex].tagName == 'TH') ? true : false,
+                  isTD0 = (cIndex == 0 && THorTD[cIndex].tagName == 'TD') ? true : false,
+                  scopeAttrValue = THorTD[cIndex].getAttribute('scope');
+                  scopeValue = (scopeAttrValue != undefined) ? scopeAttrValue.toLowerCase() : '',
+                  ThScopeInValid = (isTH && scopeValue != 'col') ? true : false,
+                  TdScopeInValid = (isTD0 && scopeValue != 'row') ? true : false;
+
+              if(ThScopeInValid || TdScopeInValid) {
+                if(groupFlag == false) {
+                  groupFlag = true;
+                  groupStyle = access.H3Style;
+                  console.groupCollapsed('%c' + tag + ': Invalid Attribute Value (scope)', groupStyle);
+                }
+                if(ThScopeInValid) {
+
+                }
+                else if(TdScopeInValid) {
+
+                }
+              }
+
+            }
+          }
+        }
+      }
+    }
+  }
+  if(groupFlag == true) console.groupEnd();
 }
 
 // Check If Given Tag has given attribute is exist.
