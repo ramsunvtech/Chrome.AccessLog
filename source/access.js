@@ -73,7 +73,7 @@ access.getErrors = function () {
   access.getElByMissedAttribute('label', 'for');
   access.getElByMissedAttribute('iframe', 'title');
   access.getElByMissedAttribute('a', 'href');
-  access.checkScopeAttribute();
+  access.checkScopeAttribute('table', 'scope');
   access.inValidEl('label', 'for');
 }
 
@@ -124,7 +124,7 @@ access.elUsage = function (tag, min, max, isInfo) {
 }
 
 // Check If Scope Attribute is used in `TH` and `TD`.
-access.checkScopeAttribute = function (tag) {
+access.checkScopeAttribute = function (tag, attr) {
   var tablesList = document.getElementsByTagName(tag),
       groupFlag = false;
 
@@ -146,8 +146,8 @@ access.checkScopeAttribute = function (tag) {
             if(typeof THorTD[cIndex] === 'object') {
               var isTH = (THorTD[cIndex].tagName == 'TH') ? true : false,
                   isTD0 = (cIndex == 0 && THorTD[cIndex].tagName == 'TD') ? true : false,
-                  scopeAttrValue = THorTD[cIndex].getAttribute('scope');
-                  scopeValue = (scopeAttrValue != undefined) ? scopeAttrValue.toLowerCase() : '',
+                  scopeAttrValue = (THorTD[cIndex].hasAttribute(attr)) ? THorTD[cIndex].getAttribute(attr) : null,
+                  scopeValue = (scopeAttrValue != null) ? scopeAttrValue.toLowerCase() : '',
                   ThScopeInValid = (isTH && scopeValue != 'col') ? true : false,
                   TdScopeInValid = (isTD0 && scopeValue != 'row') ? true : false;
 
@@ -155,13 +155,17 @@ access.checkScopeAttribute = function (tag) {
                 if(groupFlag == false) {
                   groupFlag = true;
                   groupStyle = access.H3Style;
-                  console.groupCollapsed('%c' + tag + ': Invalid Attribute Value (scope)', groupStyle);
+                  console.groupCollapsed('%c' + tag + ': Missing Attribute / Invalid Attribute Value (scope)', groupStyle);
                 }
-                if(ThScopeInValid) {
 
+                if(scopeAttrValue == null) {
+                  access.aLog(access.message.missing(attr, tag), THorTD[cIndex]);
+                }
+                else if(ThScopeInValid) {
+                  access.aLog(access.message.inValidAttrValue(tag, attr), THorTD[cIndex]);
                 }
                 else if(TdScopeInValid) {
-
+                  access.aLog(access.message.inValidAttrValue(tag, attr), THorTD[cIndex]);
                 }
               }
 
