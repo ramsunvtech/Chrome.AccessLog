@@ -263,8 +263,8 @@ access.initialize = function () {
   console.log("%cErrors: ", access.H2Style);
   access.getErrors();
   console.log("%cTotal Errors: " + access.errorCount, access.H2Style);
-  console.log("%cWarnings: ", access.H2WarnStyle);
-  access.getWarnings();
-  console.log("%cTotal Warnings: " + access.warningCount, access.H2WarnStyle);
+  //console.log("%cWarnings: ", access.H2WarnStyle);
+  //access.getWarnings();
+  //console.log("%cTotal Warnings: " + access.warningCount, access.H2WarnStyle);
   console.timeEnd("Time Taken");
 }();
