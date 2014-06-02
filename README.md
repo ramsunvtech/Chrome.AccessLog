@@ -2,6 +2,8 @@
 
 This Chrome Plugin is used to log the Basic Accessbility Points by Reading the Loaded Web Page
 
+https://chrome.google.com/webstore/detail/access-log/foioongmhbfjnmiljihjgbkkaggodfao
+
 #### How it Works? ####
 After installing this plugin, you can find the icon in right top of the browser. once you clicked the icon, you can open the console tab by pressing F12 to see the Accessbility Log's
 
